@@ -3,9 +3,14 @@ pipeline  {
     
     parameters {
         string (
-            name: 'TARGET_IP',
+            name: 'PYTHON_NODE',
             defaultValue: 'ec2-3-252-230-89.eu-west-1.compute.amazonaws.com',
-            description: 'Enter  the traget EC2 IP address'
+            description: 'Enter target EC2 Node for Python APP'
+        )
+        string (
+            name: 'WEB_NODE',
+            defaultValue: 'ec2-3-252-230-89.eu-west-1.compute.amazonaws.com',
+            description: 'Enter target EC2 Node for Web APP'
         )
     }
     
@@ -16,7 +21,7 @@ pipeline  {
             steps {
                 sshagent (credentials: ['AWS-SSH-KEY']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no  ec2-user@172.31.27.145 '
+                        ssh -o StrictHostKeyChecking=no  ec2-user@${WEB_NODE} '
                         sudo yum install git -y; 
                         sudo yum install nginx -y; 
                         sudo systemctl start nginx;
@@ -24,7 +29,7 @@ pipeline  {
                         rm -rf fruits-veg_market;
                         git clone https://github.com/techbleat/fruits-veg_market.git;
                         cd fruits-veg_market/;
-                        sed 's/FRUIT_MACHINE/${TARGET_IP}/g' -i web/index.html
+                        sed 's/FRUIT_MACHINE/${PYTHON_NODE}/g' -i web/index.html
                         sudo cp web/index.html /usr/share/nginx/html;
 ' 
                     """
